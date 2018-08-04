@@ -38,7 +38,7 @@ class jira::install () {
     extract      => true,
     extract_path => $jira::jira_install_dir,
     source       => "${jira::source_location}/atlassian-jira-software-${jira::version}.tar.gz",
-    creates      => "${jira::jira_install_dir}/atlassian-jira-${jira::version}-standalone",
+    creates      => "${jira::jira_install_dir}/atlassian-jira-software-${jira::version}-standalone",
     cleanup      => true,
     user         => $jira::jira_user,
     group        => $jira::jira_grp,
@@ -47,7 +47,7 @@ class jira::install () {
 
   file { "${jira::jira_install_dir}/current":
     ensure => link,
-    target => "${jira::jira_install_dir}/atlassian-jira-${jira::version}",
+    target => "${jira::jira_install_dir}/atlassian-jira-software-${jira::version}-standalone",
   }
 }
 
