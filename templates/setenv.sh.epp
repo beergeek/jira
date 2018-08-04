@@ -57,7 +57,7 @@ JAVA_OPTS="-Xms${JVM_MINIMUM_MEMORY} -Xmx${JVM_MAXIMUM_MEMORY} ${JAVA_OPTS} ${JV
 export JAVA_OPTS
 
 # DO NOT remove the following line
-JAVA_HOME="/opt/atlassian/jira/jre/"; export JAVA_HOME
+JAVA_HOME="<%= $java_home %>"; export JAVA_HOME
 
 echo ""
 echo "If you encounter issues starting or stopping JIRA, please see the Troubleshooting guide at http://confluence.atlassian.com/display/JIRA/Installation+Troubleshooting+Guide"

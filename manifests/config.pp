@@ -102,7 +102,7 @@ class jira::config {
       line    => "    <property name=\"hibernate.connection.driver_class\">${_db_driver}</property>",
       match   => '^( |\t)*<property name\="hibernate.connection.driver_class">',
       after   => '^( |\t)*<property name\="jira.jms.broker.uri">',
-      #require => File['base_config'],
+      require => File['base_config'],
     }
 
     file_line { 'db_password':
@@ -145,6 +145,7 @@ class jira::config {
       java_args => $_java_args,
       java_xms  => $jira::jvm_xms,
       java_xmx  => $jira::jvm_xmx,
+      java_home => $jira::java_home,
     })
   }
 }

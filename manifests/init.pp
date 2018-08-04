@@ -5,6 +5,7 @@
 # @example
 #   include jira
 class jira (
+  Stdlib::Absolutepath   $java_home,
   Boolean                $manage_db_settings    = false,
   Boolean                $manage_user           = true,
   Boolean                $manage_grp            = true,

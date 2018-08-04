@@ -9,7 +9,13 @@ describe 'jira' do
     }
   end
 
-  context 'With defaults' do
+  context 'With defaults (but setting JAVA_HOME)' do
+    let :params do
+      {
+        java_home: '/var/java',
+      }
+    end
+
     it do
       is_expected.to contain_class('jira::install')
       is_expected.to contain_class('jira::config')
@@ -56,7 +62,7 @@ describe 'jira' do
           'extract'       => true,
           'extract_path'  => '/opt/atlassian/jira',
           'source'        => 'https://product-downloads.atlassian.com/software/jira/downloads/atlassian-jira-software-7.11.1.tar.gz',
-          'creates'       => '/opt/atlassian/jira/atlassian-jira-7.11.1-standalone',
+          'creates'       => '/opt/atlassian/jira/atlassian-jira-software-7.11.1-standalone',
           'cleanup'       => true,
           'user'          => 'jira',
           'group'         => 'jira',
@@ -66,7 +72,7 @@ describe 'jira' do
       it do
         is_expected.to contain_file('/opt/atlassian/jira/current').with(
           'ensure'  => 'link',
-          'target'  => '/opt/atlassian/jira/atlassian-jira-7.11.1',
+          'target'  => '/opt/atlassian/jira/atlassian-jira-software-7.11.1-standalone',
         )
       end
     end
@@ -75,7 +81,7 @@ describe 'jira' do
       it do
         is_expected.to contain_file_line('jira_home_dir').with(
           'ensure'  => 'present',
-          'path'    => '/opt/atlassian/jira/atlassian-jira-7.11.1/atlassian-jira/WEB-INF/classes/jira-init.properties',
+          'path'    => '/opt/atlassian/jira/atlassian-jira-software-7.11.1-standalone/atlassian-jira/WEB-INF/classes/jira-application.properties',
           'line'    => 'jira.home=/var/atlassian/application-data/jira',
         )
       end
@@ -86,7 +92,7 @@ describe 'jira' do
           'owner'   => 'jira',
           'group'   => 'jira',
           'mode'    => '0644',
-          'source'  => 'puppet:///modules/jira/jira.cfg.xml',
+          'source'  => 'puppet:///modules/jira/dbconfig.xml',
           'replace' => false,
         )
       end
@@ -121,6 +127,7 @@ describe 'jira' do
         db_name: 'jiradb',
         db_user: 'jira',
         db_password: 'password123',
+        java_home: '/var/java'
       }
     end
 
@@ -130,9 +137,9 @@ describe 'jira' do
           'ensure'          => 'present',
           'extract'         => true,
           'extract_command' => "tar -zxf %s --strip-components 1 --exclude='lib*' */mysql-connector-java-5.1.46.jar",
-          'extract_path'    => '/opt/atlassian/jira/atlassian-jira-7.11.1/lib',
+          'extract_path'    => '/opt/atlassian/jira/atlassian-jira-software-7.11.1-standalone/lib',
           'source'          => 'https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz',
-          'creates'         => '/opt/atlassian/jira/atlassian-jira-7.11.1/lib/mysql-connector-java-5.1.46.jar',
+          'creates'         => '/opt/atlassian/jira/atlassian-jira-software-7.11.1-standalone/lib/mysql-connector-java-5.1.46.jar',
           'cleanup'         => true,
           'user'            => 'jira',
           'group'           => 'jira',
@@ -142,17 +149,17 @@ describe 'jira' do
       it do
         is_expected.to contain_file('java_args').with(
           'ensure'  => 'file',
-          'path'    => '/opt/atlassian/jira/atlassian-jira-7.11.1/bin/setenv.sh',
+          'path'    => '/opt/atlassian/jira/atlassian-jira-software-7.11.1-standalone/bin/setenv.sh',
           'owner'  => 'jira',
           'group'  => 'jira',
           'mode'   => '0644',
-        ).with_content(/: \$\{JVM_SUPPORT_RECOMMENDED_ARGS:=" -Djira\.upgrade\.fail\.if\.mysql\.unsupported=false"\}/)
+        ).with_content(/JVM_SUPPORT_RECOMMENDED_ARGS=" -Djira\.upgrade\.fail\.if\.mysql\.unsupported=false"/)
       end
 
       it do
         is_expected.to contain_file_line('db_driver').with(
           'ensure'  => 'present',
-          'path'    => '/var/atlassian/application-data/jira/jira.cfg.xml',
+          'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
           'line'    => "    <property name=\"hibernate.connection.driver_class\">com.mysql.jdbc.Driver</property>",
           'match'   => '^( |\\t)*<property name\\="hibernate.connection.driver_class">',
           'after'   => '^( |\\t)*<property name\\="jira.jms.broker.uri">',
@@ -162,7 +169,7 @@ describe 'jira' do
       it do
         is_expected.to contain_file_line('db_password').with(
           'ensure'  => 'present',
-          'path'    => '/var/atlassian/application-data/jira/jira.cfg.xml',
+          'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
           'line'    => "    <property name=\"hibernate.connection.password\">password123</property>",
           'match'   => '^( |\\t)*<property name\\="hibernate.connection.password">',
           'after'   => '^( |\\t)*<property name\\="hibernate.connection.driver_class">',
@@ -172,7 +179,7 @@ describe 'jira' do
       it do
         is_expected.to contain_file_line('db_url').with(
           'ensure'  => 'present',
-          'path'    => '/var/atlassian/application-data/jira/jira.cfg.xml',
+          'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
           'line'    => "    <property name=\"hibernate.connection.url\">jdbc:mysql://mysql0.puppet.vm/jiradb?autoReconnect=true</property>",
           'match'   => '^( |\\t)*<property name\\="hibernate.connection.url">',
           'after'   => '^( |\\t)*<property name\\="hibernate.connection.password">',
@@ -182,7 +189,7 @@ describe 'jira' do
       it do
         is_expected.to contain_file_line('db_user').with(
           'ensure'  => 'present',
-          'path'    => '/var/atlassian/application-data/jira/jira.cfg.xml',
+          'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
           'line'    => "    <property name=\"hibernate.connection.username\">jira</property>",
           'match'   => '^( |\\t)*<property name\\="hibernate.connection.username">',
           'after'   => '^( |\\t)*<property name\\="hibernate.connection.url">',
@@ -192,7 +199,7 @@ describe 'jira' do
       it do
         is_expected.to contain_file_line('db_dialect').with(
           'ensure'  => 'present',
-          'path'    => '/var/atlassian/application-data/jira/jira.cfg.xml',
+          'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
           'line'    => "    <property name=\"hibernate.dialect\">org.hibernate.dialect.MySQL5InnoDBDialect</property>",
           'match'   => '^( |\\t)*<property name\\="hibernate.dialect">',
           'after'   => '^( |\\t)*<property name\\="hibernate.connection.username">',
