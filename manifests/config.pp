@@ -9,7 +9,7 @@ class jira::config {
   }
 
   File_line {
-    path    => "${jira::jira_data_dir}/jira.cfg.xml",
+    path    => "${jira::jira_data_dir}/dbconfig.xml",
   }
 
   if $facts['os']['name'] == 'Amazon' and $facts['os']['release']['major'] == '4' {
@@ -47,12 +47,12 @@ class jira::config {
     line   => "jira.home=${jira::jira_data_dir}",
   }
 
-  #file { 'base_config':
-  #  ensure  => file,
-  #  path    => "${jira::jira_data_dir}/jira.cfg.xml",
-  #  source  => 'puppet:///modules/jira/jira.cfg.xml',
-  #  replace => false,
-  #}
+  file { 'base_config':
+    ensure  => file,
+    path    => "${jira::jira_data_dir}/dbconfig.xml",
+    source  => 'puppet:///modules/jira/dbconfig.xml',
+    replace => false,
+  }
 
   # Startup/Shutdown script
   file { 'init_script':
