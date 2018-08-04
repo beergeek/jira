@@ -47,12 +47,12 @@ class jira::config {
     line   => "jira.home=${jira::jira_data_dir}",
   }
 
-  file { 'base_config':
-    ensure  => file,
-    path    => "${jira::jira_data_dir}/jira.cfg.xml",
-    source  => 'puppet:///modules/jira/jira.cfg.xml',
-    replace => false,
-  }
+  #file { 'base_config':
+  #  ensure  => file,
+  #  path    => "${jira::jira_data_dir}/jira.cfg.xml",
+  #  source  => 'puppet:///modules/jira/jira.cfg.xml',
+  #  replace => false,
+  #}
 
   # Startup/Shutdown script
   #file { 'init_script':
