@@ -1,0 +1,13 @@
+[Unit]
+Description=Atlassian jira
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User=<%= $jira_user %>
+ExecStart=<%= $jira_install_dir %>/bin/start-jira.sh
+ExecStop=<%= $jira_install_dir %>/bin/stop-jira.sh
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

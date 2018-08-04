@@ -16,7 +16,7 @@ class jira::config {
     $init_file = 'jira.systemd.epp'
     $script_path = '/etc/systemd/system/jira.service'
   } elsif $facts['os']['release']['major'] == '6' {
-      $init_file = 'jira.init.pp'
+      $init_file = 'jira.init.epp'
       $script_path = '/etc/init.d/jira'
   } elsif $facts['os']['release']['major'] == '7' {
     $init_file = 'jira.systemd.epp'
