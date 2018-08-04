@@ -87,9 +87,9 @@ class jira::config {
         ensure          => present,
         extract         => true,
         extract_command => "tar -zxf %s --strip-components 1 --exclude='lib*' */${jira::mysql_driver_jar_name}",
-        extract_path    => "${jira::jira_install_dir}/atlassian-jira-${jira::version}/lib",
+        extract_path    => "${jira::jira_install_dir}/atlassian-jira-${jira::version}-standalone/lib",
         source          => "${jira::mysql_driver_source}/${jira::mysql_driver_pkg}",
-        creates         => "${jira::jira_install_dir}/atlassian-jira-${jira::version}/lib/${jira::mysql_driver_jar_name}",
+        creates         => "${jira::jira_install_dir}/atlassian-jira-${jira::version}-standalone/lib/${jira::mysql_driver_jar_name}",
         cleanup         => true,
         user            => $jira::jira_user,
         group           => $jira::jira_grp,
@@ -140,7 +140,7 @@ class jira::config {
 
   #file { 'java_args':
   #  ensure  => file,
-  #  path    => "${jira::jira_install_dir}/atlassian-jira-${jira::version}/bin/setenv.sh",
+  #  path    => "${jira::jira_install_dir}/atlassian-jira-${jira::version}-standalone/bin/setenv.sh",
   #  content => epp('jira/setenv.sh.epp', {
   #    java_args => $_java_args,
   #    java_xms  => $jira::jvm_xms,
