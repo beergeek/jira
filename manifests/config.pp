@@ -43,7 +43,7 @@ class jira::config {
   # Configure the home/data/app directory for jira
   file_line { 'jira_home_dir':
     ensure => present,
-    path   => "${jira::jira_install_dir}/atlassian-jira-software-${jira::version}-standalone/atlassian-jira/WEB-INF/classes/jira-init.properties",
+    path   => "${jira::jira_install_dir}/atlassian-jira-software-${jira::version}-standalone/atlassian-jira/WEB-INF/classes/jira-application.properties",
     line   => "jira.home=${jira::jira_data_dir}",
   }
 
