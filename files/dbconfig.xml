@@ -3,10 +3,10 @@
 <jira-database-config>
   <name>defaultDS</name>
   <delegator-name>default</delegator-name>
-  <database-type>mysql</database-type>
+  <database-type></database-type>
   <jdbc-datasource>
-    <url>jdbc:mysql://address=(protocol=tcp)(host=)(port=3306)/?useUnicode=true&amp;characterEncoding=UTF8&amp;sessionVariables=default_storage_engine=InnoDB</url>
-    <driver-class>com.mysql.jdbc.Driver</driver-class>
+    <url></url>
+    <driver-class></driver-class>
     <username></username>
     <password></password>
     <pool-min-size>20</pool-min-size>

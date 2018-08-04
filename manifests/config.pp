@@ -25,18 +25,27 @@ class jira::config {
     fail("You OS version is either far too old or far to bleeding edge: ${facts['os']['name']} ${facts['os']['release']['major']}")
   }
 
+  # Determine if port is supplied, if not assume default port for database type
+  if $jira::db_port == undef or empty($jira::db_port) {
+    if $jira::db_type == 'mysql' {
+      $_db_port = '3306'
+    } else {
+      $_db_port = '5432'
+    }
+  } else {
+    $_db_port = $jira::db_port
+  }
+
   if $jira::db_type == 'mysql' {
     # If RHEL7 it uses MariaDB, which is not supported, but we can skip the check
     # -Djira.upgrade.fail.if.mysql.unsupported=false
     # Set db connection data
     $_java_args = "${jira::java_args} -Djira.upgrade.fail.if.mysql.unsupported=false"
     $_db_driver = 'com.mysql.jdbc.Driver'
-    $_db_hibernate = 'org.hibernate.dialect.MySQL5InnoDBDialect'
-    $_db_url = "jdbc:mysql://${jira::db_host}/${jira::db_name}?autoReconnect=true"
+    $_db_url = "jdbc:mysql://address=(protocol=tcp)(host=${jira::db_host})(port=${_db_port})/${jira::db_name}?useUnicode=true&amp;characterEncoding=UTF8&amp;sessionVariables=default_storage_engine=InnoDB"
   } else {
     $_java_args = $jira::java_args
     $_db_driver = 'com.mysql.jdbc.Driver'
-    $_db_hibernate = 'org.hibernate.dialect.PostgreSQL82Dialect'
     $_db_url = "jdbc:postgresql://${jira::db_host}/${jira::db_name}?autoReconnect=true"
   }
 
@@ -70,16 +79,6 @@ class jira::config {
     if $jira::db_name == undef or $jira::db_host == undef or $jira::db_user == undef or $jira::db_password == undef {
       fail('When `manage_db_settings` is true you must provide `db_name`, `db_host`, `db_user`, and `db_password`')
     }
-    # Determine if port is supplied, if not assume default port for database type
-    if $jira::db_port == undef or empty($jira::db_port) {
-      if $jira::db_type == 'mysql' {
-        $_db_port = '3306'
-      } else {
-        $_db_port = '5432'
-      }
-    } else {
-      $_db_port = $jira::db_port
-    }
 
     # If MySQL we need the driver and set
     if $jira::db_type == 'mysql' {
@@ -97,43 +96,43 @@ class jira::config {
     }
 
     # Database connector config
-    file_line { 'db_driver':
+    file_line { 'db_type':
       ensure  => present,
-      line    => "    <property name=\"hibernate.connection.driver_class\">${_db_driver}</property>",
-      match   => '^( |\t)*<property name\="hibernate.connection.driver_class">',
-      after   => '^( |\t)*<property name\="jira.jms.broker.uri">',
+      line    => "    <database-type>${jira::db_type}</database-type>",
+      match   => '^( |\t)*<database-type>',
+      after   => '^( |\t)*<delegator-name>',
       require => File['base_config'],
-    }
-
-    file_line { 'db_password':
-      ensure  => present,
-      line    => "    <property name=\"hibernate.connection.password\">${jira::db_password}</property>",
-      match   => '^( |\t)*<property name\="hibernate.connection.password">',
-      after   => '^( |\t)*<property name\="hibernate.connection.driver_class">',
-      require => File_line['db_driver'],
     }
 
     file_line { 'db_url':
       ensure  => present,
-      line    => "    <property name=\"hibernate.connection.url\">${_db_url}</property>",
-      match   => '^( |\t)*<property name\="hibernate.connection.url">',
-      after   => '^( |\t)*<property name\="hibernate.connection.password">',
-      require => File_line['db_password'],
+      line    => "    <url>${_db_url}</url>",
+      match   => '^( |\t)*<url>',
+      after   => '^( |\t)*<jdbc-datasource>',
+      require => File_line['db_type'],
+    }
+
+    file_line { 'db_driver':
+      ensure  => present,
+      line    => "    <driver-class>${_db_driver}</driver-class>",
+      match   => '^( |\t)*<driver-class>',
+      after   => '^( |\t)*<url>',
+      require => File_line['db_url'],
     }
 
     file_line { 'db_user':
       ensure  => present,
-      line    => "    <property name=\"hibernate.connection.username\">${jira::db_user}</property>",
-      match   => '^( |\t)*<property name\="hibernate.connection.username">',
-      after   => '^( |\t)*<property name\="hibernate.connection.url">',
-      require => File_line['db_url'],
+      line    => "    <username>${jira::db_user}</username>",
+      match   => '^( |\t)*<username>',
+      after   => '^( |\t)*<driver-class>',
+      require => File_line['db_driver'],
     }
 
-    file_line { 'db_dialect':
+    file_line { 'db_password':
       ensure  => present,
-      line    => "    <property name=\"hibernate.dialect\">${_db_hibernate}</property>",
-      match   => '^( |\t)*<property name\="hibernate.dialect">',
-      after   => '^( |\t)*<property name\="hibernate.connection.username">',
+      line    => "    <password>${jira::db_password}</password>",
+      match   => '^( |\t)*<password>',
+      after   => '^( |\t)*<username>',
       require => File_line['db_user'],
     }
   }

@@ -157,53 +157,53 @@ describe 'jira' do
       end
 
       it do
-        is_expected.to contain_file_line('db_driver').with(
+        is_expected.to contain_file_line('db_type').with(
           'ensure'  => 'present',
           'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
-          'line'    => "    <property name=\"hibernate.connection.driver_class\">com.mysql.jdbc.Driver</property>",
-          'match'   => '^( |\\t)*<property name\\="hibernate.connection.driver_class">',
-          'after'   => '^( |\\t)*<property name\\="jira.jms.broker.uri">',
+          'line'    => "    <database-type>mysql</database-type>",
+          'match'   => '^( |\t)*<database-type>',
+          'after'   => '^( |\t)*<delegator-name>',
         ).that_requires("File[base_config]")
-      end
-
-      it do
-        is_expected.to contain_file_line('db_password').with(
-          'ensure'  => 'present',
-          'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
-          'line'    => "    <property name=\"hibernate.connection.password\">password123</property>",
-          'match'   => '^( |\\t)*<property name\\="hibernate.connection.password">',
-          'after'   => '^( |\\t)*<property name\\="hibernate.connection.driver_class">',
-        )
       end
 
       it do
         is_expected.to contain_file_line('db_url').with(
           'ensure'  => 'present',
           'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
-          'line'    => "    <property name=\"hibernate.connection.url\">jdbc:mysql://mysql0.puppet.vm/jiradb?autoReconnect=true</property>",
-          'match'   => '^( |\\t)*<property name\\="hibernate.connection.url">',
-          'after'   => '^( |\\t)*<property name\\="hibernate.connection.password">',
-        )
+          'line'    => "    <url>jdbc:mysql://address=(protocol=tcp)(host=mysql0.puppet.vm)(port=3306)/jiradb?useUnicode=true&amp;characterEncoding=UTF8&amp;sessionVariables=default_storage_engine=InnoDB</url>",
+          'match'   => '^( |\t)*<url>',
+          'after'   => '^( |\t)*<jdbc-datasource>',
+        ).that_requires("File_line[db_type]")
+      end
+
+      it do
+        is_expected.to contain_file_line('db_driver').with(
+          'ensure'  => 'present',
+          'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
+          'line'    => "    <driver-class>com.mysql.jdbc.Driver</driver-class>",
+          'match'   => '^( |\t)*<driver-class>',
+          'after'   => '^( |\t)*<url>',
+        ).that_requires("File_line[db_url]")
       end
 
       it do
         is_expected.to contain_file_line('db_user').with(
           'ensure'  => 'present',
           'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
-          'line'    => "    <property name=\"hibernate.connection.username\">jira</property>",
-          'match'   => '^( |\\t)*<property name\\="hibernate.connection.username">',
-          'after'   => '^( |\\t)*<property name\\="hibernate.connection.url">',
-        )
+          'line'    => "    <username>jira</username>",
+          'match'   => '^( |\t)*<username>',
+          'after'   => '^( |\t)*<driver-class>',
+        ).that_requires("File_line[db_driver]")
       end
 
       it do
-        is_expected.to contain_file_line('db_dialect').with(
+        is_expected.to contain_file_line('db_password').with(
           'ensure'  => 'present',
           'path'    => '/var/atlassian/application-data/jira/dbconfig.xml',
-          'line'    => "    <property name=\"hibernate.dialect\">org.hibernate.dialect.MySQL5InnoDBDialect</property>",
-          'match'   => '^( |\\t)*<property name\\="hibernate.dialect">',
-          'after'   => '^( |\\t)*<property name\\="hibernate.connection.username">',
-        )
+          'line'    => "    <password>password123</password>",
+          'match'   => '^( |\t)*<password>',
+          'after'   => '^( |\t)*<username>',
+        ).that_requires("File_line[db_user]")
       end
     end
   end
