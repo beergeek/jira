@@ -55,15 +55,15 @@ class jira::config {
   #}
 
   # Startup/Shutdown script
-  #file { 'init_script':
-  #  ensure  => file,
-  #  path    => $script_path,
-  #  mode    => '0744',
-  #  content => epp("jira/${init_file}", {
-  #    jira_user        => $jira::jira_user,
-  #    jira_install_dir => "${jira::jira_install_dir}/current",
-  #  }),
-  #}
+  file { 'init_script':
+    ensure  => file,
+    path    => $script_path,
+    mode    => '0744',
+    content => epp("jira/${init_file}", {
+      jira_user        => $jira::jira_user,
+      jira_install_dir => "${jira::jira_install_dir}/current",
+    }),
+  }
 
   if $jira::manage_db_settings {
     # Check if we have the required info
@@ -138,13 +138,13 @@ class jira::config {
     }
   }
 
-  #file { 'java_args':
-  #  ensure  => file,
-  #  path    => "${jira::jira_install_dir}/atlassian-jira-${jira::version}-standalone/bin/setenv.sh",
-  #  content => epp('jira/setenv.sh.epp', {
-  #    java_args => $_java_args,
-  #    java_xms  => $jira::jvm_xms,
-  #    java_xmx  => $jira::jvm_xmx,
-  #  })
-  #}
+  file { 'java_args':
+    ensure  => file,
+    path    => "${jira::jira_install_dir}/atlassian-jira-software-${jira::version}-standalone/bin/setenv.sh",
+    content => epp('jira/setenv.sh.epp', {
+      java_args => $_java_args,
+      java_xms  => $jira::jvm_xms,
+      java_xmx  => $jira::jvm_xmx,
+    })
+  }
 }

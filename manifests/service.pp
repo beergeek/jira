@@ -6,7 +6,7 @@
 #   include jira::service
 class jira::service {
 
-  service { 'jira':
+  service { 'jira1':
     ensure => running,
     enable => true,
   }
