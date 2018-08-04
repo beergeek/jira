@@ -7,7 +7,8 @@ Type=forking
 User=<%= $jira_user %>
 ExecStart=<%= $jira_install_dir %>/bin/start-jira.sh
 ExecStop=<%= $jira_install_dir %>/bin/stop-jira.sh
-SuccessExitStatus=143
+ExecReload=<%= $jira_install_dir %>/bin/stop-jira.sh | sleep 60 | <%= $jira_install_dir %>/bin/start-jira.sh
+
 
 [Install]
 WantedBy=multi-user.target
