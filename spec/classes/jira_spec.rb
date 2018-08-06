@@ -207,4 +207,26 @@ describe 'jira' do
       end
     end
   end
+
+  context 'jira with HTTPS' do
+    let :params do
+      {
+        manage_db_settings: false,
+        java_home: '/var/java',
+        https: true,
+      }
+    end
+
+    describe 'jira::config' do
+      it do
+        is_expected.to contain_file('tomcat_connector').with(
+          'ensure' => 'file',
+          'path'   => '/opt/atlassian/jira/atlassian-jira-software-7.11.1-standalone/conf/server.xml',
+          'owner'  => 'jira',
+          'group'  => 'jira',
+          'mode'   => '0644',
+        ).with_content(%r{8443})
+      end
+    end
+  end
 end

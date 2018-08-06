@@ -147,4 +147,13 @@ class jira::config {
       java_home => $jira::java_home,
     })
   }
+
+  file { 'tomcat_connector':
+    ensure => file,
+    path   => "${jira::jira_install_dir}/atlassian-jira-software-${jira::version}-standalone/conf/server.xml",
+    content => epp('jira/server.xml.epp', {
+      jira_data_dir => $jira::jira_data_dir,
+      https         => $jira::https,
+    }),
+  }
 }
